@@ -14,11 +14,4 @@ public interface BookService {
     int getQuantity(Long bookId);
 
     List<Book> getAllBooks();
-
-    // import exception
-    if(requestedQuantity>quantityInStock)
-
-    {
-        throw new InsufficientStockException("Insufficient stock for the requested quantity");
-    }
 }
