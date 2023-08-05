@@ -1,17 +1,30 @@
-package com.example.BookstoreInventorySystem.controller;
+package com.example.bookstore.controller;
 
-import com.example.BookstoreInventorySystem.entity.Book;
-import com.example.BookstoreInventorySystem.service.BookService;
+import com.example.bookstore.model.Book;
+import com.example.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookController {
+    private final BookService bookService;
+
     @Autowired
-    private BookService bookService;
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @GetMapping("/sell")
+    public void sellBook(int quantityInStock, int requestedQuantity) {
+        try {
+            bookService.sellBook(quantityInStock, requestedQuantity);
+        } catch (InsufficientStockException e) {
+            throw new InsufficientStockException("Insufficient stock for the requested quantity");
+        }
+    }
 
     @PostMapping
     public void addBook(@RequestBody Book book) {
@@ -19,31 +32,22 @@ public class BookController {
     }
 
     @DeleteMapping("/{bookId}")
-    public void removeBook(@PathVariable Long bookId) {
+    public void removeBook(@PathVariable String bookId) {
         bookService.removeBook(bookId);
     }
 
     @PutMapping("/{bookId}")
-    public void updateStock(@PathVariable Long bookId, @RequestParam int newQuantity) {
-        bookService.updateStock(bookId, newQuantity);
+    public void updateQuantity(@PathVariable String bookId, @RequestParam int newQuantity) {
+        bookService.updateQuantity(bookId, newQuantity);
     }
 
-    @GetMapping("/{bookId}")
-    public int getStock(@PathVariable Long bookId) {
-        return bookService.getStock(bookId);
+    @GetMapping("/{bookId}/quantity")
+    public int getQuantity(@PathVariable String bookId) {
+        return bookService.getQuantity(bookId);
     }
 
     @GetMapping
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
-    }
-
-    @GetMapping("/search")
-    public List<Book> searchBooks(@RequestParam(required = false) String title, 
-                              @RequestParam(required = false) String author,
-                              @RequestParam(required = false) String isbn,
-                              @RequestParam(required = false) Double minPrice,
-                              @RequestParam(required = false) Double maxPrice,
-                              @RequestParam(required = false) Integer minStock) {
     }
 }
